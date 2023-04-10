@@ -1,25 +1,77 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
+}
 
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
+android {
+    namespace 'com.okta.totp'
+    compileSdk libs.versions.compile.sdk.get() as Integer
+
+    defaultConfig {
+        applicationId "com.okta.totp"
+        minSdk libs.versions.min.sdk.get() as Integer
+        targetSdk libs.versions.target.sdk.get() as Integer
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "com.okta.totp.HiltTestRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
+
+        vectorDrawables {
+            useSupportLibrary true
+        }
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
-        
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        compose true
+    }
+    testOptions {
+        animationsDisabled true
+
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion libs.versions.kotlin.compiler.extension.version.get()
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
     }
 }
 
-allprojects {
-    repositories {
-        mavenCentral()
-        google()
-    }
-}
+dependencies {
+    implementation(libs.bundles.android)
+    implementation(libs.security.crypto.ktx)
+    implementation(libs.bundles.compose.ui)
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    implementation(libs.bundles.camerax)
+    implementation(libs.mlkit.barcode.scanning)
+    implementation(libs.kotlin.onetimepassword)
+    implementation(libs.commons.codec)
+    kapt(libs.hilt.compiler)
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    testImplementation(libs.bundles.unit.testing)
+    kaptAndroidTest(libs.hilt.compiler.testing)
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.bundles.android.instrumentation.testing)
+    androidTestUtil(libs.androidx.test.orchestrator)
+    androidTestImplementation(libs.compose.ui.test.junit)
+    debugImplementation(libs.bundles.compose.debug)
 }
